@@ -1,3 +1,5 @@
+# Modified to run in python 3.7 by hzy
+
 # A Deep Generative Framework for Paraphrase Generation
 
 ## Model:
