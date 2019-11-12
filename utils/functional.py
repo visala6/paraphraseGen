@@ -8,7 +8,7 @@ def f_or(x, y):
     return convert(x) or convert(y)
 
 def convert(x):
-    if type(x) <> bool:
+    if type(x) != bool:
         return len(x)>0
     else:
         return x

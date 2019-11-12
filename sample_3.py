@@ -148,15 +148,15 @@ if __name__ == '__main__':
             # exit()
             # print(results)
             for tt in results:
-                for k in xrange(n_best):
+                for k in range(n_best):
                     sen = " ". join([batch_loader_2.decode_word(x[k]) for x in tt])
                 # print sen
                 if batch_loader.end_token in sen:    
-                    print sen[:sen.index(batch_loader.end_token)]
+                    print (sen[:sen.index(batch_loader.end_token)])
                 else :
-                    print sen
+                    print (sen)
             # exit()       
-        print '\n'
+        print ('\n')
 
 
     # print 'words_vocab_size BatchLoader ----------->'

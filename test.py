@@ -34,7 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('--test-file', type=str, default='data/test.txt', metavar='NS',
                         help='test file path (default: data/test.txt)')
     parser.add_argument('--save-model', type=str, default='./trained_RVAE', metavar='NS',
-                        help='trained model save path (default: ./trained_models/trained_RVAE_quora)')
+                        help='trained model save path (default: ./trained_RVAE)')
     args = parser.parse_args()
     
     #Removing, is already some previous files exist from last execution of program
@@ -87,15 +87,15 @@ if __name__ == '__main__':
 
     '''======================================== RVAE loading ==================================================
     '''
-    print 'Started loading'
+    print ('Started loading')
     start_time = time.time()
     rvae = RVAE(parameters,parameters_2)
     rvae.load_state_dict(t.load(args.save_model))
     if args.use_cuda:
         rvae = rvae.cuda()
     loading_time=time.time() - start_time
-    print 'Time elapsed in loading model =' , loading_time
-    print 'Finished loading'
+    print ('Time elapsed in loading model =' , loading_time)
+    print ('Finished loading')
 
     ''' ==================================== Parameters Initialising ===========================================
     '''
@@ -115,21 +115,33 @@ if __name__ == '__main__':
 
     for i in range(len(data)):
         if args.use_file:
-            print (data[i])
+            print ('original sentence:     '+data[i])
         else:
-            print str + '\n'
+            print ('original sentence:     '+str + '\n')
         for iteration in range(args.num_sample):
+
+
 
             seed = Variable(t.randn([1, parameters.latent_variable_size]))
             seed = seed.cuda()
 
             results, scores = rvae.sampler(batch_loader,batch_loader_2, 50, seed, args.use_cuda,i,beam_size,n_best)
-
+            
             for tt in results:
-                for k in xrange(n_best):
+                '''
+                for k in range(3):
+                    for x in tt:
+                        print(x[0]+x[1]+x[2])
+                        #print(batch_loader_2.decode_word(x[0]))
+                for k in range(n_best):c
+                    print([batch_loader_2.decode_word(x[k]) for x in tt])
                     sen = " ". join([batch_loader_2.decode_word(x[k]) for x in tt])
-                if batch_loader.end_token in sen:    
-                    print sen[:sen.index(batch_loader.end_token)]
-                else :
-                    print sen      
-        print '\n'
+                    print ("---------"+sen)     
+                '''
+                for k in range(n_best):
+                    sen = " ". join([batch_loader_2.decode_word(x[k]) for x in tt])
+                    if batch_loader.end_token in sen:    
+                        print ('generate sentence:     '+sen[:sen.index(batch_loader.end_token)])
+                    else :
+                        print ('generate sentence:     '+sen)      
+        print ('\n')

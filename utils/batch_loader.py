@@ -109,9 +109,9 @@ class BatchLoader:
         self.word_embedding_index = 0
 
     def clean_whole_data(self, string):
-        string = re.sub('^[\d\:]+ ', '', string, 0, re.M)
-        string = re.sub('\n\s{11}', ' ', string, 0, re.M)
-        string = re.sub('\n{2}', '\n', string, 0, re.M)
+        string = re.sub(r'^[\d\:]+ ', '', string, 0, re.M)
+        string = re.sub(r'\n\s{11}', ' ', string, 0, re.M)
+        string = re.sub(r'\n{2}', '\n', string, 0, re.M)
 
         return string.lower()
 
@@ -217,7 +217,7 @@ class BatchLoader:
 
         self.max_word_len = np.amax([len(word) for word in self.idx_to_word])
 
-        [self.word_tensor, self.character_tensor] = [np.array([np.load(target) for target in input_type])
+        [self.word_tensor, self.character_tensor] = [np.array([np.load(target,allow_pickle=True) for target in input_type])
                                                      for input_type in tensor_files]
 
         self.just_words = [word for line in self.word_tensor[0] for word in line]

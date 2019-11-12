@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument('--dropout', type=float, default=0.3, metavar='DR',
                         help='dropout (default: 0.3)')
     parser.add_argument('--use-trained', type=bool, default=False, metavar='UT',
-                        help='load pretrained model (default: False)')
+                        help='load pretrained model (default: True)')
     parser.add_argument('--ce-result', default='', metavar='CE',
                         help='ce result path (default: '')')
     parser.add_argument('--kld-result', default='', metavar='KLD',
@@ -97,25 +97,25 @@ if __name__ == "__main__":
 
     for iteration in range(args.num_iterations):
         #This needs to be changed
-        #start_index =  (start_index+1)%50000
-        start_index = (start_index+args.batch_size)%149163
+        start_index =  (start_index+1)%(49999-args.batch_size)
+        #start_index = (start_index+args.batch_size)%149163
         cross_entropy, kld, coef = train_step(iteration, args.batch_size, args.use_cuda, args.dropout, start_index)
-
+        #print(start_index)
         # exit()
-
-        if iteration % 5 == 0:
+        
+        if iteration % 500 == 0:
             print('\n')
             print('------------TRAIN-------------')
             print('----------ITERATION-----------')
             print(iteration)
             print('--------CROSS-ENTROPY---------')
-            print(cross_entropy.data.cpu().numpy()[0])
+            print(cross_entropy.data.cpu().numpy())
             print('-------------KLD--------------')
-            print(kld.data.cpu().numpy()[0])
+            print(kld.data.cpu().numpy())
             print('-----------KLD-coef-----------')
             print(coef)
             print('------------------------------')
-
+        
         # if iteration % 10 == 0:
         #     start_index_2 = (start_index_2+args.batch_size)%3900
         #     cross_entropy, kld = validate(args.batch_size, args.use_cuda, start_index_2)
@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
         #     ce_result += [cross_entropy]
         #     kld_result += [kld]
-            '''
+        '''
          if iteration % 20 == 0:
             seed = np.random.normal(size=[1, parameters.latent_variable_size])
 
@@ -144,7 +144,7 @@ if __name__ == "__main__":
             print('------------------------------')
             print(sample)
             print('------------------------------')
-            '''
+        '''
     t.save(rvae.state_dict(), 'trained_RVAE')
 
     np.save('ce_result_{}.npy'.format(args.ce_result), np.array(ce_result))
