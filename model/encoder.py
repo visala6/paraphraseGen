@@ -27,17 +27,35 @@ class Encoder(nn.Module):
         """
         #print "Three"
         [batch_size, seq_len, embed_size] = input.size()
+        #input shape   32    ,    26     ,    825
 
         input = input.view(-1, embed_size)
+        #input shape   832(=32*26),825
+
         input = self.hw1(input)
+        #input shape 832(=32*26),825 
+
         input = input.view(batch_size, seq_len, embed_size)
+        #input shape 32    ,    26     ,    825
+
+
 
         assert parameters_allocation_check(self), \
             'Invalid CUDA options. Parameters should be allocated in the same memory'
 
         ''' Unfold rnn with zero initial state and get its final state from the last layer
         '''
-        _, (transfer_state_1, final_state) = self.rnn(input, State)
+        _, (transfer_state_1, final_state) = self.rnn(input, State) 
+        """Inputs: input, (h_0, c_0)
+        - **input** of shape `(seq_len, batch, input_size)`: tensor containing the features
+          of the input sequence.
+          The input can also be a packed variable length sequence.
+          Outputs: output, (h_n, c_n)
+        - **output** of shape `(seq_len, batch, num_directions * hidden_size)`: tensor
+          containing the output features `(h_t)` from the last layer of the LSTM,
+          for each `t`. If a :class:`torch.nn.utils.rnn.PackedSequence` has been
+          given as the input, the output will also be a packed sequence.
+        """
         transfer_state_2 = final_state
         
         final_state = final_state.view(self.params.encoder_num_layers, 2, batch_size, self.params.encoder_rnn_size)

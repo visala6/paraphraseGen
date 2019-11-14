@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument('--dropout', type=float, default=0.3, metavar='DR',
                         help='dropout (default: 0.3)')
     parser.add_argument('--use-trained', type=bool, default=False, metavar='UT',
-                        help='load pretrained model (default: True)')
+                        help='load pretrained model (default: False)')
     parser.add_argument('--ce-result', default='', metavar='CE',
                         help='ce result path (default: '')')
     parser.add_argument('--kld-result', default='', metavar='KLD',

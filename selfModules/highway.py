@@ -4,6 +4,7 @@ import torch.nn.functional as F
 
 
 class Highway(nn.Module):
+    #????????????? highway is a lstm cell? input a x, return new_x where x,and new_x is the 
     def __init__(self, size, num_layers, f):
 
         super(Highway, self).__init__()
@@ -34,7 +35,7 @@ class Highway(nn.Module):
             f is non-linear transformation, σ(x) is affine transformation with sigmoid non-linearition
             and ⨀ is element-wise multiplication
         """
-
+        
         for layer in range(self.num_layers):
             gate = F.sigmoid(self.gate[layer](x))
 
