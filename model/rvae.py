@@ -66,7 +66,7 @@ class RVAE(nn.Module):
 
         if z is None:
             ''' Get context from encoder and sample z ~ N(mu, std)
-            '''
+            ''' #把word和character拼接成一个向量
             [batch_size, _] = encoder_word_input.size()
 
             encoder_input = self.embedding(encoder_word_input, encoder_character_input)
@@ -82,8 +82,8 @@ class RVAE(nn.Module):
             
             context , h_0 , c_0 = self.encoder(encoder_input, None)
             
-            State = (h_0,c_0) #Final state of Encoder-1
-            context_2 , _ , _ = self.encoder_2( encoder_input_2, State )   #Encoder_2 for Ques_2
+            State = (h_0,c_0) #Final state of Encoder-1 原始句子编码
+            context_2 , _ , _ = self.encoder_2( encoder_input_2, State )   #Encoder_2 for Ques_2  接下去跟释义句编码
             
             mu = self.context_to_mu(context_2)
             logvar = self.context_to_logvar(context_2)
@@ -114,7 +114,7 @@ class RVAE(nn.Module):
         return out, final_state, kld, mu, std
 
     def learnable_parameters(self):
-
+        #wordembedding是固定值，因此必须从优化器的参数列表里移除。
         # word_embedding is constant parameter thus it must be dropped from list of parameters for optimizer
         return [p for p in self.parameters() if p.requires_grad]
 
@@ -124,7 +124,10 @@ class RVAE(nn.Module):
             input = [Variable(t.from_numpy(var)) for var in input]
             input = [var.long() for var in input]
             input = [var.cuda() if use_cuda else var for var in input]
-
+            #这里是data/train.txt,转换变成embedding，用pand补齐， 
+            #其中encoder_word_input, encoder_character_input是将 xo原始句输入倒过来前面加若干占位符， 
+            # decoder_word_input, decoder_character_input是 xo原始句加了开始符号末端补齐
+            # target，结束句子后面加了结束符，target是xo原始句加结束符后面加若干占位符
             [encoder_word_input, encoder_character_input, decoder_word_input, decoder_character_input, target] = input
 
 
@@ -134,14 +137,17 @@ class RVAE(nn.Module):
             input_2 = batch_loader_2.next_batch(batch_size, 'train', start_index)
             input_2 = [Variable(t.from_numpy(var)) for var in input_2]
             input_2 = [var.long() for var in input_2]
-            input_2 = [var.cuda() if use_cuda else var for var in input_2]
-
+            input_2 = [var.cuda() if use_cuda else var for var in input_2]           
+            #这里是data/super/train.txt,转换变成embedding，用pand补齐， 
+            #其中encoder_word_input, encoder_character_input是将 释义句xp输入倒过来前面加若干占位符， 
+            # decoder_word_input, decoder_character_input是 释义句xp加了开始符号末端补齐
+            # target，结束句子后面加了结束符，target是释义句xp加结束符后面加若干占位符
             [encoder_word_input_2, encoder_character_input_2, decoder_word_input_2, decoder_character_input_2, target] = input_2
 
             ''' ================================================================================================================================
             '''
             # exit()
-
+            #这里encoder-input是原始句子xo的输入（句子翻转），encoder-input2是释义句xp的输入（句子翻转），decoder-input是释义句加加开始符号
             logits, _, kld,_ ,_ = self(dropout,
                                   encoder_word_input, encoder_character_input,
                                   encoder_word_input_2,encoder_character_input_2,
@@ -151,15 +157,15 @@ class RVAE(nn.Module):
             # logits = logits.view(-1, self.params.word_vocab_size)
             logits = logits.view(-1, self.params_2.word_vocab_size)
             target = target.view(-1)
-            cross_entropy = F.cross_entropy(logits, target)
+            cross_entropy = F.cross_entropy(logits, target)#前面logit 是每一步输出的词汇表所有词的概率， target是每一步对应的词的索引不用变成onehot，函数内部做变换
 
-            loss = 79 * cross_entropy + kld_coef(i) * kld
+            loss = 79 * cross_entropy + kld_coef(i) * kld #79应该是作者拍脑袋的
 
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            optimizer.zero_grad() #标准用法先计算损失函数值，然后初始化梯度为0，
+            loss.backward()#然后反向传递
+            optimizer.step()#反向跟新梯度
 
-            return cross_entropy, kld, kld_coef(i)
+            return cross_entropy, kld, kld_coef(i)# 交叉熵，kl-devergence，kld-coef是为了让他
 
         return train
 

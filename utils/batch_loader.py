@@ -255,32 +255,32 @@ class BatchLoader:
         max_input_seq_len = np.amax(input_seq_len)
 
         encoded_words = [[idx for idx in line] for line in encoder_word_input]
-        decoder_word_input = [[self.word_to_idx[self.go_token]] + line for line in encoder_word_input]
-        decoder_character_input = [[self.encode_characters(self.go_token)] + line for line in encoder_character_input]
-        decoder_output = [line + [self.word_to_idx[self.end_token]] for line in encoded_words]
+        decoder_word_input = [[self.word_to_idx[self.go_token]] + line for line in encoder_word_input] #输入端加上开始标志
+        decoder_character_input = [[self.encode_characters(self.go_token)] + line for line in encoder_character_input] #输入端加上开始标志
+        decoder_output = [line + [self.word_to_idx[self.end_token]] for line in encoded_words] #输出端加入结束
 
         # sorry
-        for i, line in enumerate(decoder_word_input):
+        for i, line in enumerate(decoder_word_input):# 后面补齐pad-token
             line_len = input_seq_len[i]
             to_add = max_input_seq_len - line_len
             decoder_word_input[i] = line + [self.word_to_idx[self.pad_token]] * to_add
 
-        for i, line in enumerate(decoder_character_input):
+        for i, line in enumerate(decoder_character_input):# 后面补齐pad-token
             line_len = input_seq_len[i]
             to_add = max_input_seq_len - line_len
             decoder_character_input[i] = line + [self.encode_characters(self.pad_token)] * to_add
 
-        for i, line in enumerate(decoder_output):
+        for i, line in enumerate(decoder_output):# 后面补齐pad-token
             line_len = input_seq_len[i]
             to_add = max_input_seq_len - line_len
             decoder_output[i] = line + [self.word_to_idx[self.pad_token]] * to_add
 
-        for i, line in enumerate(encoder_word_input):
+        for i, line in enumerate(encoder_word_input):#把输入的句子倒过来 前面补齐pad-token
             line_len = input_seq_len[i]
             to_add = max_input_seq_len - line_len
             encoder_word_input[i] = [self.word_to_idx[self.pad_token]] * to_add + line[::-1]
 
-        for i, line in enumerate(encoder_character_input):
+        for i, line in enumerate(encoder_character_input):#把输入的句子倒过来 前面补齐pad-token
             line_len = input_seq_len[i]
             to_add = max_input_seq_len - line_len
             encoder_character_input[i] = [self.encode_characters(self.pad_token)] * to_add + line[::-1]

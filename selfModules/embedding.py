@@ -40,7 +40,7 @@ class Embedding(nn.Module):
         [batch_size, seq_len] = word_input.size()
 
         word_input = self.word_embed(word_input)
-
+        #character_input 将字母变成字母的embedding，然后拼接在一起，作为一个词的 字母一级别的embedding
         character_input = character_input.view(-1, self.params.max_word_len)
         character_input = self.char_embed(character_input)
         character_input = character_input.view(batch_size,
@@ -50,6 +50,6 @@ class Embedding(nn.Module):
 
         character_input = self.TDNN(character_input)
 
-        result = t.cat([word_input, character_input], 2)
+        result = t.cat([word_input, character_input], 2)#将词的embeding 和 字母的embedding拼接在一起
 
         return result

@@ -13,11 +13,11 @@ if __name__ == "__main__":
 
     if not os.path.exists('data/word_embeddings.npy'):
         raise FileNotFoundError("word embeddings file was't found")
-
+#一次一句，这样容易看，一次两个词
     parser = argparse.ArgumentParser(description='RVAE')
     parser.add_argument('--num-iterations', type=int, default=120000, metavar='NI',
                         help='num iterations (default: 120000)')
-    parser.add_argument('--batch-size', type=int, default=32, metavar='BS',
+    parser.add_argument('--batch-size', type=int, default=1, metavar='BS',
                         help='batch size (default: 32)')
     parser.add_argument('--use-cuda', type=bool, default=True, metavar='CUDA',
                         help='use cuda (default: True)')
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     optimizer = Adam(rvae.learnable_parameters(), args.learning_rate)
 
-    train_step = rvae.trainer(optimizer,batch_loader, batch_loader_2)
+    train_step = rvae.trainer(optimizer,batch_loader, batch_loader_2)# batchloader里面是原始句子，batechloader2里面存储的是释义句
     validate = rvae.validater(batch_loader,batch_loader_2)
 
     ce_result = []
@@ -96,9 +96,9 @@ if __name__ == "__main__":
     # start_index_2 = 0
 
     for iteration in range(args.num_iterations):
-        #This needs to be changed
+        #This needs to be changed ##这一步必须保证不大于训练数据数量-每一批数据的大小，否则越界报错######################
         start_index =  (start_index+1)%(49999-args.batch_size)
-        #start_index = (start_index+args.batch_size)%149163
+        #start_index = (start_index+args.batch_size)%149163 #计算交叉熵损失，等
         cross_entropy, kld, coef = train_step(iteration, args.batch_size, args.use_cuda, args.dropout, start_index)
         #print(start_index)
         # exit()
