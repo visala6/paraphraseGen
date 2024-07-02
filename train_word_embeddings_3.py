@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     for iteration in range(args.num_iterations):
 
-        input_idx, target_idx = batch_loader_2.next_embedding_seq(args.batch_size)
+        input_idx, target_idx = batch_loader_3.next_embedding_seq(args.batch_size)
 
         input = Variable(t.from_numpy(input_idx).long())
         target = Variable(t.from_numpy(target_idx).long())
