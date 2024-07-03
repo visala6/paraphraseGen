@@ -74,11 +74,28 @@ if __name__ == "__main__":
                             batch_loader_2.max_seq_len,
                             batch_loader_2.words_vocab_size,
                             batch_loader_2.chars_vocab_size)
+
+    ''' =================== Doing the same for encoder-3 ===============================================
+    '''
+    data_files = [path + 'data/super/train_3.txt',
+                       path + 'data/super/test_3.txt']
+
+    idx_files = [path + 'data/super/words_vocab_3.pkl',
+                      path + 'data/super/characters_vocab_3.pkl']
+
+    tensor_files = [[path + 'data/super/train_word_tensor_3.npy',
+                          path + 'data/super/valid_word_tensor_3.npy'],
+                         [path + 'data/super/train_character_tensor_3.npy',
+                          path + 'data/super/valid_character_tensor_3.npy']]
+    batch_loader_3 = BatchLoader(data_files, idx_files, tensor_files, path)
+    parameters_3 = Parameters(batch_loader_3.max_word_len,
+                            batch_loader_3.max_seq_len,
+                            batch_loader_3.words_vocab_size,
+                            batch_loader_3.chars_vocab_size)
+    
     '''=================================================================================================
     '''
-
-
-    rvae = RVAE(parameters,parameters_2)
+    rvae = RVAE(parameters,parameters_2, parameters_3)
     if args.use_trained:
         rvae.load_state_dict(t.load('trained_RVAE'))
     if args.use_cuda:
@@ -86,8 +103,8 @@ if __name__ == "__main__":
 
     optimizer = Adam(rvae.learnable_parameters(), args.learning_rate)
 
-    train_step = rvae.trainer(optimizer,batch_loader, batch_loader_2)# batchloader里面是原始句子，batechloader2里面存储的是释义句
-    validate = rvae.validater(batch_loader,batch_loader_2)
+    train_step = rvae.trainer(optimizer,batch_loader, batch_loader_2, batch_loader_3)# batchloader里面是原始句子，batechloader2里面存储的是释义句
+    validate = rvae.validater(batch_loader,batch_loader_2, batch_loader_3)
 
     ce_result = []
     kld_result = []
