@@ -69,11 +69,31 @@ if __name__ == '__main__':
                             batch_loader_2.max_seq_len,
                             batch_loader_2.words_vocab_size,
                             batch_loader_2.chars_vocab_size)
+    
+    ''' ============================= BatchLoader loading ===============================================
+    '''
+
+    data_files = [path + 'data/super/train_3.txt',
+                       path + 'data/super/test_3.txt']
+
+    idx_files = [path + 'data/super/words_vocab_3.pkl',
+                      path + 'data/super/characters_vocab_3.pkl']
+
+    tensor_files = [[path + 'data/super/train_word_tensor_3.npy',
+                          path + 'data/super/valid_word_tensor_3.npy'],
+                         [path + 'data/super/train_character_tensor_3.npy',
+                          path + 'data/super/valid_character_tensor_3.npy']]
+
+    batch_loader_3 = BatchLoader(data_files, idx_files, tensor_files, path)
+    parameters_3 = Parameters(batch_loader_3.max_word_len,
+                            batch_loader_3.max_seq_len,
+                            batch_loader_3.words_vocab_size,
+                            batch_loader_3.chars_vocab_size)
 
     '''======================================== RVAE creation ==================================================
     '''
     
-    rvae = RVAE(parameters,parameters_2)
+    rvae = RVAE(parameters,parameters_2,parameters_3)
     rvae.load_state_dict(t.load('trained_RVAE'))
     if args.use_cuda:
         rvae = rvae.cuda()
@@ -106,6 +126,16 @@ if __name__ == '__main__':
 
         [encoder_word_input_2, encoder_character_input_2, decoder_word_input_2, decoder_character_input_2, target] = input_2
 
+        ''' =================================================== Input for Encoder-3 ========================================================
+        '''
+
+        input_3 = batch_loader_3.next_batch(1, 'valid', i)
+        input_3 = [Variable(t.from_numpy(var)) for var in input_3]
+        input_3 = [var.long() for var in input_3]
+        input_3 = [var.cuda() if use_cuda else var for var in input_3]
+
+        [encoder_word_input_3, encoder_character_input_3, decoder_word_input_3, decoder_character_input_3, target] = input_2
+
         ''' ================================================== Forward pass ===========================================================
         '''
         # exit()
@@ -113,7 +143,8 @@ if __name__ == '__main__':
         logits,_,kld,mu,std = rvae.forward(0.,
                               encoder_word_input, encoder_character_input,
                               encoder_word_input_2,encoder_character_input_2,
-                              decoder_word_input_2, decoder_character_input_2,
+                              encoder_word_input_3,encoder_character_input_3,
+                              decoder_word_input_3, decoder_character_input_3,
                               z=None)
 
         ''' ================================================================================================================================
@@ -144,12 +175,12 @@ if __name__ == '__main__':
             # print type(seed)
             # print seed
             # exit()
-            results, scores = rvae.sampler(batch_loader,batch_loader_2, 50, seed, args.use_cuda,i,beam_size,n_best)
+            results, scores = rvae.sampler(batch_loader,batch_loader_2,batch_loader_3, 50, seed, args.use_cuda,i,beam_size,n_best)
             # exit()
             # print(results)
             for tt in results:
                 for k in range(n_best):
-                    sen = " ". join([batch_loader_2.decode_word(x[k]) for x in tt])
+                    sen = " ". join([batch_loader_3.decode_word(x[k]) for x in tt])
                 # print sen
                 if batch_loader.end_token in sen:    
                     print (sen[:sen.index(batch_loader.end_token)])
