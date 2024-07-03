@@ -84,12 +84,26 @@ if __name__ == '__main__':
                             batch_loader_2.words_vocab_size,
                             batch_loader_2.chars_vocab_size)
 
+    ''' ============================ BatchLoader for Question-3 ===============================================
+    '''
+    data_files = ['data/super/train_3.txt']
+
+    idx_files = ['data/super/words_vocab_3.pkl',
+                      'data/super/characters_vocab_3.pkl']
+
+    tensor_files = [['data/super/train_word_tensor_3.npy'],
+                         ['data/super/train_character_tensor_3.npy']]
+    batch_loader_3 = BatchLoader(data_files, idx_files, tensor_files)
+    parameters_3 = Parameters(batch_loader_3.max_word_len,
+                            batch_loader_3.max_seq_len,
+                            batch_loader_3.words_vocab_size,
+                            batch_loader_3.chars_vocab_size)
 
     '''======================================== RVAE loading ==================================================
     '''
     print ('Started loading')
     start_time = time.time()
-    rvae = RVAE(parameters,parameters_2)
+    rvae = RVAE(parameters,parameters_2, parameters_3)
     rvae.load_state_dict(t.load(args.save_model))
     if args.use_cuda:
         rvae = rvae.cuda()
@@ -125,7 +139,7 @@ if __name__ == '__main__':
             seed = Variable(t.randn([1, parameters.latent_variable_size]))
             seed = seed.cuda()
 
-            results, scores = rvae.sampler(batch_loader,batch_loader_2, 50, seed, args.use_cuda,i,beam_size,n_best)
+            results, scores = rvae.sampler(batch_loader,batch_loader_2, batch_loader_3, 50, seed, args.use_cuda,i,beam_size,n_best)
             
             for tt in results:
                 '''
@@ -139,7 +153,7 @@ if __name__ == '__main__':
                     print ("---------"+sen)     
                 '''
                 for k in range(n_best):
-                    sen = " ". join([batch_loader_2.decode_word(x[k]) for x in tt])
+                    sen = " ". join([batch_loader_3.decode_word(x[k]) for x in tt])
                     if batch_loader.end_token in sen:    
                         print ('generate sentence:     '+sen[:sen.index(batch_loader.end_token)])
                     else :
