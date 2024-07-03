@@ -33,6 +33,10 @@ if __name__ == '__main__':
     #Path to test file ---
     parser.add_argument('--test-file', type=str, default='data/test.txt', metavar='NS',
                         help='test file path (default: data/test.txt)')
+    parser.add_argument('--ref1-file', type=str, default='data/super/test_2.txt', metavar='NS',
+                        help='reference 1 file path (default: data/test.txt)')
+    parser.add_argument('--ref2-file', type=str, default='data/test.txt', metavar='NS',
+                        help='reference 2 file path (default: data/super/test_3.txt)')
     parser.add_argument('--save-model', type=str, default='./trained_RVAE', metavar='NS',
                         help='trained model save path (default: ./trained_RVAE)')
     args = parser.parse_args()
@@ -71,7 +75,7 @@ if __name__ == '__main__':
 
     ''' ============================ BatchLoader for Question-2 ===============================================
     '''
-    data_files = ['data/super/train_2.txt']
+    data_files = [args.ref1_file]
 
     idx_files = ['data/super/words_vocab_2.pkl',
                       'data/super/characters_vocab_2.pkl']
@@ -86,7 +90,7 @@ if __name__ == '__main__':
 
     ''' ============================ BatchLoader for Question-3 ===============================================
     '''
-    data_files = ['data/super/train_3.txt']
+    data_files = [args.ref2_file]
 
     idx_files = ['data/super/words_vocab_3.pkl',
                       'data/super/characters_vocab_3.pkl']
