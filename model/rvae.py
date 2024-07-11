@@ -61,7 +61,7 @@ class RVAE(nn.Module):
         use_cuda = self.embedding.word_embed.weight.is_cuda
 
         assert z is None and fold(lambda acc, parameter: acc and parameter is not None,
-                                  [encoder_word_input, encoder_character_input, decoder_word_input_2],
+                                  [encoder_word_input, encoder_character_input, decoder_word_input_3],
                                   True) \
             or (z is not None and decoder_word_input_3 is not None), \
             "Invalid input. If z is None then encoder and decoder inputs should be passed as arguments"
