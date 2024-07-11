@@ -22,7 +22,7 @@ class RVAE(nn.Module):
 
         self.embedding = Embedding(self.params, '')
         self.embedding_2 = Embedding(self.params_2, '',True)
-        self.embedding_3 = Embedding(self.params_3, '', True)
+        self.embedding_3 = Embedding(self.params_3, '', True, True)
         self.encoder = Encoder(self.params)
         self.encoder_2 = Encoder(self.params_2)
         self.encoder_3 = Encoder(self.params_3)
