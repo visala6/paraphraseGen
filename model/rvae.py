@@ -288,11 +288,11 @@ class RVAE(nn.Module):
         _ , h0 , c0 = self.encoder(encoder_input, None)
         State = (h0,c0)
         
-        input_2 = batch_loader_2.next_batch(1,'valid',i)
+        '''input_2 = batch_loader_2.next_batch(1,'valid',i)
         input_2 = [Variable(t.from_numpy(var) for var in input_2]
         input_2 = [var.long() for var in input_2]
         input_2 = [var.cuda() if use_cuda else var for var in input_2]
-        [encoder_word_input_2, encoder_character_input_2, decoder_word_input_2, decoder_character_input_2, target_2] = input
+        [encoder_word_input_2, encoder_character_input_2, decoder_word_input_2, decoder_character_input_2, target_2] = input_2
         # print '----------------------'
         # print 'Printing h0 ---------->'
         # print h0
@@ -300,7 +300,7 @@ class RVAE(nn.Module):
         encoder_input_2 = self.embedding(encoder_word_input_2, encoder_characer_input_2)
         _, h0, c0 = self.encoder(encoder_input_2, State)
         State = (h0,c0)
-        
+        '''
         # State = None
         results, scores = self.sample_beam(batch_loader_3, seq_len, seed, use_cuda, State, beam_size, n_best)
 
