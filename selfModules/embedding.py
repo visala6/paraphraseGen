@@ -8,13 +8,16 @@ from .tdnn import TDNN
 
 
 class Embedding(nn.Module):
-    def __init__(self, params, path='../../../', flag=False):
+    def __init__(self, params, path='../../../', flag=False, secref=False):
         super(Embedding, self).__init__()
 
         self.params = params
 
         if flag == True:
-            word_embed = np.load(path + 'data/super/word_embeddings.npy')
+            if secref == True:
+                word_embed = np.load(path + 'data/super/word_embeddings_.npy')
+            else:
+                word_embed = np.load(path + 'data/super/word_embeddings.npy')
         else :
             word_embed = np.load(path + 'data/word_embeddings.npy')
 
